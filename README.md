@@ -21,6 +21,7 @@ This method is most likely what the original bing browser client does.
 The format of {BingImageCreator} options is almost same as the bingAiClient options of 'node-chatgpt-api'.
 ```JS
 import { BingImageCreator } from '@timefox/bic-sydney';
+import crypto from 'crypto';
 
 // Setup the required options.
 const options = {
@@ -37,6 +38,9 @@ const options = {
     // (Optional) The user agent for the network request.
     userAgent: '',
 };
+
+const prompt = 'a fox plays xbox';
+const messageId = crypto.randomUUID();
 
 // Make a creation request with given prompt. With 'gencontentv3' option on, bing will give you the prompt
 // in a message which's contentType is 'IMAGE'.
@@ -59,6 +63,7 @@ Create images by Bing Image Creator, and get a iframe which uses the 'srcdoc' at
 **It's very useful for the clients can not visit the new bing's service directly.**
 ```JS
 import { BingImageCreator } from '@timefox/bic-sydney';
+import crypto from 'crypto';
 
 // Setup the required options.
 const options = {
@@ -76,10 +81,25 @@ const options = {
     userAgent: '',
 };
 
+const prompt = 'a fox plays xbox';
+const messageId = crypto.randomUUID();
+
 // Make a creation request with given prompt. With 'gencontentv3' option on, bing will give you the prompt
 // in a message which's contentType is 'IMAGE'.
 // The onProgress is a callback function. If onProgress is provided and returns true, the request will be cancelled.
-const imageIframe = await new BingImageCreator(options).genImageIframeSsr(prompt, messageId, onProgress);
+imageIframe = new BingImageCreator(options).genImageIframeSsr(
+    prompt,
+    messageId,
+    (progress) => {
+        if (progress?.contentIframe) {
+            console.debug('contentIframe:');
+            console.debug(progress.contentIframe);
+        }
+        if (progress?.pollingStartTime) {
+            console.debug(`pollingStartTime: ${progress.pollingStartTime}`);
+        }
+    },
+);
 imageIframe.then((result) => {
     console.debug(result);
 }).catch((error) => {
