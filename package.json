@@ -1,0 +1,34 @@
+{
+  "name": "bic-sydney",
+  "version": "1.0.0",
+  "description": "This is a module which allows sydney to use the Bing Image Creator to generate images for you.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "npx eslint .",
+    "doc": "jsdoc ./src/BingImageCreator.js -d docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timefox/node-bic-sydney.git"
+  },
+  "keywords": [
+    "bing",
+    "bing-image-creator",
+    "bing-chat",
+    "bic",
+    "sydney"
+  ],
+  "author": "timefox",
+  "license": "MIT",
+  "dependencies": {
+    "fetch-undici": "^3.0.1",
+    "undici": "^5.22.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "jsdoc": "^4.0.2"
+  }
+}
