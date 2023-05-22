@@ -24,23 +24,7 @@ export default class BingImageCreator {
      * @param {Object} options - Options for BingImageCreator.
      */
     constructor(options) {
-        this.options = options;
-
-        this.telemetry = {
-            config: this.options,
-            currentKSeed: this.options.telemetry.kSeedBase,
-            instSuffix: this.options.telemetry.instSuffix,
-            getNextKSeed() {
-                // eslint-disable-next-line no-return-assign, no-sequences
-                return this.currentKSeed += this.config.telemetry.kSeedIncrement,
-                this.currentKSeed;
-            },
-            getNextInstSuffix() {
-                // eslint-disable-next-line no-return-assign
-                return this.config.features.enableAnsCardSfx ? (this.instSuffix += this.config.telemetry.instSuffixIncrement,
-                this.instSuffix > 1 ? `${this.instSuffix}` : '') : '';
-            },
-        };
+        this.setOptions(options);
     }
 
     /**
@@ -73,6 +57,21 @@ export default class BingImageCreator {
                 },
             };
         }
+        this.telemetry = {
+            config: this.options,
+            currentKSeed: this.options.telemetry.kSeedBase,
+            instSuffix: this.options.telemetry.instSuffix,
+            getNextKSeed() {
+                // eslint-disable-next-line no-return-assign, no-sequences
+                return this.currentKSeed += this.config.telemetry.kSeedIncrement,
+                this.currentKSeed;
+            },
+            getNextInstSuffix() {
+                // eslint-disable-next-line no-return-assign
+                return this.config.features.enableAnsCardSfx ? (this.instSuffix += this.config.telemetry.instSuffixIncrement,
+                this.instSuffix > 1 ? `${this.instSuffix}` : '') : '';
+            },
+        };
         this.debug = this.options.debug;
     }
 
