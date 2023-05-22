@@ -1,3 +1,7 @@
+<p align="center">
+  <img alt="ChatGPT API + PandoraAI demo" src="./demos/chatgptapi_with_pandoraai.gif" width="820px" height="820px">
+</p>
+
 # node-bic-sydney
 > A Node.js module that provides some 'Bing Image Creator' functions.
 
@@ -18,7 +22,7 @@ npm i @timefox/bic-sydney
 
 Create images by Bing Image Creator, and get a iframe pointing to the page contains the images created.
 This method is most likely what the original bing browser client does.
-The format of {BingImageCreator} options is almost same as the bingAiClient options of 'node-chatgpt-api'.
+The format of {BingImageCreator} options is almost same as the bingAiClient options of 'ChatGPT API'.
 ```JS
 import { BingImageCreator } from '@timefox/bic-sydney';
 import crypto from 'crypto';
