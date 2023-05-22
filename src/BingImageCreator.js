@@ -195,7 +195,7 @@ export default class BingImageCreator {
 
         return {
             contentUrl: `${response.url}`,
-            pollingUrl: `${this.options.imgCreatorHost}${this.constructor.decodeHtmlLite(pollingUrl)}`,
+            pollingUrl: `${this.options.host}${this.constructor.decodeHtmlLite(pollingUrl)}`,
             contentHtml: body,
             prompt: `${prompt}`,
             iframeid: `${messageId}`,
