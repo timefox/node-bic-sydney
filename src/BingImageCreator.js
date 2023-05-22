@@ -64,12 +64,12 @@ export default class BingImageCreator {
             getNextKSeed() {
                 // eslint-disable-next-line no-return-assign, no-sequences
                 return this.currentKSeed += this.config.telemetry.kSeedIncrement,
-                this.currentKSeed;
+                    this.currentKSeed;
             },
             getNextInstSuffix() {
                 // eslint-disable-next-line no-return-assign
                 return this.config.features.enableAnsCardSfx ? (this.instSuffix += this.config.telemetry.instSuffixIncrement,
-                this.instSuffix > 1 ? `${this.instSuffix}` : '') : '';
+                    this.instSuffix > 1 ? `${this.instSuffix}` : '') : '';
             },
         };
         this.debug = this.options.debug;
@@ -131,6 +131,56 @@ export default class BingImageCreator {
             '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&nbsp;': String.fromCharCode(160),
         };
         return html.replace(/&[a-z]+;/g, match => entities[match] || match);
+    }
+
+    /**
+     * Removes a specific HTML element and its corresponding closing tag from a web page string.
+     * @param {string} html - The web page string to be processed.
+     * @param {string} tag - The element tag to be removed, such as 'div'.
+     * @param {string} tagId - The id of the element to be removed, such as 'giloader'.
+     * @returns {string} A new web page string with the specified element and its closing tag removed.
+     */
+    static removeHtmlTagLite(html, tag, tagId) {
+        // Create a regex, matches <tag id="tagId">, id can be at any available position.
+        const regex = new RegExp(`<${tag}[^>]*id="${tagId}"[^>]*>`);
+
+        // Find out the start and end position of <tag id="tagId">.
+        const match = regex.exec(html);
+
+        // return the original html if nothing matches.
+        if (!match) {
+            return html;
+        }
+
+        const start = match.index;
+        let end = match.index + match[0].length;
+
+        // Count the nested tags, the initial value is 0.
+        let nested = 0;
+        const tagStart = `<${tag} `;
+        const tagEnd = `</${tag}>`;
+
+        // loop the string, until find out its matched '</tag>'.
+        for (let i = end; i < html.length; ++i) {
+            // If '<tag' found, there is a nested tag that starts, increase the nested by 1.
+            if (html.slice(i, i + tag.length + 2) === tagStart) {
+                ++nested;
+            }
+            // If </tag> found, there is a nested tag that ends, decrease the nested by 1.
+            if (html.slice(i, i + tag.length + 3) === tagEnd) {
+                --nested;
+            }
+            // If nested is -1, the matched '</tag>' is found.
+            if (nested === -1) {
+                // Update the end position, make it point to the position after </tag>.
+                end = i + tag.length + 3;
+                // Break the loop;
+                break;
+            }
+        }
+
+        // Remove the strings between the '<tag id="tagId">' and the matched '</tag>'.
+        return html.slice(0, start) + html.slice(end);
     }
 
     /**
@@ -331,10 +381,16 @@ export default class BingImageCreator {
             }
         }
         const resultHtml = await this.pollingImgRequest(pollingUrl, onProgress);
+        // "Render" it fastly.
         // Note: It is heavily hard-coded and may break in future upgrades of the BingAI.
-        const renderedHtml = contentHtml.replace(/(?<=<div[^>]*?id="giric")(?:(?![^>]*?style="display: block;")[^>]*?)style="[^"]*"/, ' style="display: block;"')
-            .replace(/(?<=<div[^>]*?id="giric"[^>]*?>)[\s\S]*?(?=<\/div>)/, `${resultHtml}`)
-            .replace(/(?<=catch\(e\)\{)if\(n&&t\)\{/, match => `n='${resultHtml}';${match}`);
+        const renderedHtml = this.constructor.removeHtmlTagLite(contentHtml, 'div', 'giloader')
+            .replace(/<div([^>]*)id="giric"([^>]*)>/, (match, group1, group2) => {
+                if (group1.indexOf(' style="') === -1 && group2.indexOf(' style="') === -1) {
+                    return `<div${group1}id="giric"${group2} style="display: block;">`;
+                } else {
+                    return match;
+                }
+            }).replace(/(?<=<div[^>]*?id="giric"[^>]*?>)[\s\S]*?(?=<\/div>)/, `${resultHtml}`);
         return this.createImageIframe(renderedHtml, true);
     }
 
