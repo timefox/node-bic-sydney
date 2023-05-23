@@ -1,5 +1,6 @@
+**A demonstration using this module with [ChatGPT API](https://github.com/waylaidwanderer/node-chatgpt-api) and [PandoraAI](https://github.com/waylaidwanderer/PandoraAI) together.**
 <p align="center">
-  <img alt="ChatGPT API + PandoraAI demo" src="./demos/chatgptapi_with_pandoraai.gif" width="820px" height="820px">
+  <img alt="A ChatGPT API + PandoraAI + BIC Sydney demo" src="./demos/chatgptapi_with_pandoraai.gif" width="820px" height="820px">
 </p>
 
 # node-bic-sydney
@@ -18,7 +19,7 @@ npm i @timefox/bic-sydney
 
 ### Usage
 <details>
-<summary><strong>Method 1</strong></summary>
+<summary><strong>Example 1</strong></summary>
 
 Create images by Bing Image Creator, and get a iframe pointing to the page contains the images created.
 This method is most likely what the original bing browser client does.
@@ -60,7 +61,7 @@ imageIframe.then((result) => {
 </details>
 
 <details>
-<summary><strong>Method 2</strong></summary>
+<summary><strong>Example 2</strong></summary>
 
 Create images by Bing Image Creator, and get a iframe which uses the 'srcdoc' attribute to hold the rendered result page.
 **This method does not require the user to have logged in to bing.com on the client side.  The entire request process is completed by the server proxy.**
