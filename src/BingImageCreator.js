@@ -64,12 +64,12 @@ export default class BingImageCreator {
             getNextKSeed() {
                 // eslint-disable-next-line no-return-assign, no-sequences
                 return this.currentKSeed += this.config.telemetry.kSeedIncrement,
-                    this.currentKSeed;
+                this.currentKSeed;
             },
             getNextInstSuffix() {
                 // eslint-disable-next-line no-return-assign
                 return this.config.features.enableAnsCardSfx ? (this.instSuffix += this.config.telemetry.instSuffixIncrement,
-                    this.instSuffix > 1 ? `${this.instSuffix}` : '') : '';
+                this.instSuffix > 1 ? `${this.instSuffix}` : '') : '';
             },
         };
         this.debug = this.options.debug;
@@ -164,11 +164,11 @@ export default class BingImageCreator {
         for (let i = end; i < html.length; ++i) {
             // If '<tag' found, there is a nested tag that starts, increase the nested by 1.
             if (html.slice(i, i + tag.length + 2) === tagStart) {
-                ++nested;
+                nested += 1;
             }
             // If </tag> found, there is a nested tag that ends, decrease the nested by 1.
             if (html.slice(i, i + tag.length + 3) === tagEnd) {
-                --nested;
+                nested -= 1;
             }
             // If nested is -1, the matched '</tag>' is found.
             if (nested === -1) {
@@ -387,9 +387,8 @@ export default class BingImageCreator {
             .replace(/<div([^>]*)id="giric"([^>]*)>/, (match, group1, group2) => {
                 if (group1.indexOf(' style="') === -1 && group2.indexOf(' style="') === -1) {
                     return `<div${group1}id="giric"${group2} style="display: block;">`;
-                } else {
-                    return match;
                 }
+                return match;
             }).replace(/(?<=<div[^>]*?id="giric"[^>]*?>)[\s\S]*?(?=<\/div>)/, `${resultHtml}`);
         return this.createImageIframe(renderedHtml, true);
     }
