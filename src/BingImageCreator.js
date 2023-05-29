@@ -100,7 +100,7 @@ export default class BingImageCreator {
                         'sec-fetch-dest': 'iframe',
                         'sec-fetch-mode': 'navigate',
                         'sec-fetch-site': 'same-origin',
-                        cookie: this.options.cookies || `_U=${this.options.userToken}`,
+                        cookie: this.options.cookies || (this.options.userToken ? `_U=${this.options.userToken}` : undefined),
                         pragma: 'no-cache',
                         referer: 'https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx',
                         'Referrer-Policy': 'origin-when-cross-origin',
