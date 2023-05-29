@@ -81,7 +81,7 @@ export default class BingImageCreator {
      */
     get fetchOptions() {
         let fetchOptions;
-        return (() => {
+        return this.options.fetchOptions ?? (() => {
             if (!fetchOptions) {
                 fetchOptions = {
                     headers: {
