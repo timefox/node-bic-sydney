@@ -163,17 +163,17 @@ export default class BingImageCreator {
         // loop the string, until find out its matched '</tag>'.
         for (let i = end; i < html.length; ++i) {
             // If '<tag' found, there is a nested tag that starts, increase the nested by 1.
-            if (html.slice(i, i + tag.length + 2) === tagStart) {
+            if (html.slice(i, i + tagStart.length) === tagStart) {
                 nested += 1;
             }
             // If </tag> found, there is a nested tag that ends, decrease the nested by 1.
-            if (html.slice(i, i + tag.length + 3) === tagEnd) {
+            if (html.slice(i, i + tagEnd.length) === tagEnd) {
                 nested -= 1;
             }
             // If nested is -1, the matched '</tag>' is found.
             if (nested === -1) {
                 // Update the end position, make it point to the position after </tag>.
-                end = i + tag.length + 3;
+                end = i + tagEnd.length;
                 // Break the loop;
                 break;
             }
