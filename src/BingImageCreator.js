@@ -3,16 +3,9 @@
  * @module BingImageCreator
  */
 import { ProxyAgent } from 'undici';
-import {
-    fetch, Headers, Request, Response,
-} from 'fetch-undici';
+import { fetch as fetchUndici } from 'fetch-undici';
 
-if (!globalThis.fetch) {
-    globalThis.fetch = fetch;
-    globalThis.Headers = Headers;
-    globalThis.Request = Request;
-    globalThis.Response = Response;
-}
+let fetch;
 
 /**
  * @class
@@ -41,7 +34,8 @@ export default class BingImageCreator {
             this.options = {
                 ...options,
                 host: options.host || 'https://www.bing.com',
-                userAgent: options.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.35',
+                apipath: options.apipath || '/images/create?partner=sydney&re=1&showselective=1&sude=1',
+                ua: options.ua || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.35',
                 features: {
                     enableAnsCardSfx: true,
                 },
@@ -57,6 +51,8 @@ export default class BingImageCreator {
                 },
             };
         }
+        fetch = typeof options.fetch === 'function' ? options.fetch : fetchUndici;
+        this.apiurl = `${this.options.host}${this.options.apipath}`;
         this.telemetry = {
             config: this.options,
             currentKSeed: this.options.telemetry.kSeedBase,
@@ -107,7 +103,7 @@ export default class BingImageCreator {
                         // Workaround for request being blocked due to geolocation
                         // 'x-forwarded-for': '1.1.1.1', // At least it can't be 1.1.1.1.
                         'upgrade-insecure-requests': '1',
-                        'user-agent': this.options.userAgent,
+                        'user-agent': this.options.ua,
                         'x-edge-shopping-flag': '1',
                     },
                 };
@@ -214,7 +210,7 @@ export default class BingImageCreator {
         }
 
         // https://www.bing.com/images/create?partner=sydney&re=1&showselective=1&sude=1&kseed=8000&SFX=3&q=${encodeURIComponent(prompt)}&iframeid=${messageId}
-        const url = `${this.options.host}/images/create?partner=sydney&re=1&showselective=1&sude=1${telemetryData}&q=${encodeURIComponent(prompt)}${messageId ? `&iframeid=${messageId}` : ''}`;
+        const url = `${this.apiurl}${telemetryData}&q=${encodeURIComponent(prompt)}${messageId ? `&iframeid=${messageId}` : ''}`;
 
         if (this.debug) {
             console.debug(`The url of the request for image creation: ${url}`);
