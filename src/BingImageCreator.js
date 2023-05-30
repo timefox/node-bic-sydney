@@ -36,6 +36,7 @@ export default class BingImageCreator {
                 host: options.host || 'https://www.bing.com',
                 apipath: options.apipath || '/images/create?partner=sydney&re=1&showselective=1&sude=1',
                 ua: options.ua || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.35',
+                xForwardedFor: this.constructor.getValidIPv4(options.xForwardedFor),
                 features: {
                     enableAnsCardSfx: true,
                 },
@@ -72,6 +73,38 @@ export default class BingImageCreator {
     }
 
     /**
+     * Get a valid IPv4 address string from input IP.
+     * @param {string} ip - A fixed IPv4 address or a range of IPv4 using CIDR notation.
+     * @returns {string} A valid IPv4 address or undefined.
+     *                   If 'ip' is a valid fixed IPv4 address, it returns 'ip' itself.
+     *                   If 'ip' is a range of IPv4 using CIDR notation, it returns a random address within the range.
+     *                   Otherwise, it returns undefined.
+     */
+    static getValidIPv4(ip) {
+        const match = !ip
+            || ip.match(/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\/([0-9]|[1-2][0-9]|3[0-2]))?$/);
+        if (match) {
+            if (match[5]) {
+                const mask = parseInt(match[5], 10);
+                let [a, b, c, d] = ip.split('.').map(x => parseInt(x, 10));
+                // eslint-disable-next-line no-bitwise
+                const max = (1 << (32 - mask)) - 1;
+                const rand = Math.floor(Math.random() * max);
+                d += rand;
+                c += Math.floor(d / 256);
+                d %= 256;
+                b += Math.floor(c / 256);
+                c %= 256;
+                a += Math.floor(b / 256);
+                b %= 256;
+                return `${a}.${b}.${c}.${d}`;
+            }
+            return ip;
+        }
+        return undefined;
+    }
+
+    /**
      * Get fetchOptions of BingImageCreator.
      * {Object} The fetch options used for BingImageCreator.
      */
@@ -101,7 +134,7 @@ export default class BingImageCreator {
                         referer: 'https://www.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx',
                         'Referrer-Policy': 'origin-when-cross-origin',
                         // Workaround for request being blocked due to geolocation
-                        // 'x-forwarded-for': '1.1.1.1', // At least it can't be 1.1.1.1.
+                        ...(this.options.xForwardedFor ? { 'x-forwarded-for': this.options.xForwardedFor } : {}),
                         'upgrade-insecure-requests': '1',
                         'user-agent': this.options.ua,
                         'x-edge-shopping-flag': '1',
