@@ -8,6 +8,15 @@
     "test": "npx eslint .",
     "doc": "jsdoc ./src/BingImageCreator.js -d docs"
   },
+  "files": [
+    "index.js",
+    "LICENSE",
+    "README.md",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/timefox/node-bic-sydney.git"
