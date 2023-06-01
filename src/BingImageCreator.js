@@ -186,19 +186,29 @@ export default class BingImageCreator {
 
         // Count the nested tags, the initial value is 0.
         let nested = 0;
+        let s = end - 1;
+        let e = end - 1;
         const tagStart = `<${tag} `;
         const tagEnd = `</${tag}>`;
 
         // loop the string, until find out its matched '</tag>'.
-        for (let i = end; i < html.length; ++i) {
-            // If '<tag' found, there is a nested tag that starts, increase the nested by 1.
-            if (html.slice(i, i + tagStart.length) === tagStart) {
-                nested += 1;
+        for (let i = end; i < html.length && e > 0; ++i) {
+            if (s > 0 && s < i) {
+                s = html.indexOf(tagStart, i);
             }
-            // If </tag> found, there is a nested tag that ends, decrease the nested by 1.
-            if (html.slice(i, i + tagEnd.length) === tagEnd) {
+            if (e < i) {
+                e = html.indexOf(tagEnd, i);
+            }
+            if (s > 0) {
+                if (e > 0) {
+                    i = Math.min(s, e);
+                    nested += (i === s) ? 1 : -1;
+                }
+            } else if (e > 0) {
+                i = e;
                 nested -= 1;
             }
+
             // If nested is -1, the matched '</tag>' is found.
             if (nested === -1) {
                 // Update the end position, make it point to the position after </tag>.
@@ -392,6 +402,25 @@ export default class BingImageCreator {
     }
 
     /**
+     * Mix the the container page and the result page, and 'render' them together into an iframe.
+     * @param {string} containerHtml - The container page's html string.
+     * @param {string} resultHtml - The result page's html string.
+     * @returns {string} The html string of the iframe created.
+     */
+    renderImageIframe(containerHtml, resultHtml) {
+        // "Render" it fastly.
+        // Note: It is heavily hard-coded and may break in future upgrades of the BingAI.
+        const renderedHtml = this.constructor.removeHtmlTagLite(containerHtml, 'div', 'giloader')
+            .replace(/<div([^>]*)id="giric"([^>]*)>/, (match, group1, group2) => {
+                if (group1.indexOf(' style="') === -1 && group2.indexOf(' style="') === -1) {
+                    return `<div${group1}id="giric"${group2} style="display: block;">`;
+                }
+                return match;
+            }).replace(/(?<=<div[^>]*?id="giric"[^>]*?>)[\s\S]*?(?=<\/div>)/, `${resultHtml}`);
+        return this.createImageIframe(renderedHtml, true);
+    }
+
+    /**
      * Create a server side render iframe which uses 'srcdoc' attribute to hold the rendered result page.
      * Unlike genImageIframeSsrLite, it returns an iframe that contains the full content of the result page
      * just like the original bing browser client does.
@@ -410,16 +439,7 @@ export default class BingImageCreator {
             }
         }
         const resultHtml = await this.pollingImgRequest(pollingUrl, onProgress);
-        // "Render" it fastly.
-        // Note: It is heavily hard-coded and may break in future upgrades of the BingAI.
-        const renderedHtml = this.constructor.removeHtmlTagLite(contentHtml, 'div', 'giloader')
-            .replace(/<div([^>]*)id="giric"([^>]*)>/, (match, group1, group2) => {
-                if (group1.indexOf(' style="') === -1 && group2.indexOf(' style="') === -1) {
-                    return `<div${group1}id="giric"${group2} style="display: block;">`;
-                }
-                return match;
-            }).replace(/(?<=<div[^>]*?id="giric"[^>]*?>)[\s\S]*?(?=<\/div>)/, `${resultHtml}`);
-        return this.createImageIframe(renderedHtml, true);
+        return this.renderImageIframe(contentHtml, resultHtml);
     }
 
     /**
@@ -439,7 +459,7 @@ export default class BingImageCreator {
 
     /**
      * Create a client side render iframe which just points to the image creation page.
-     * Note: If this element is returned to client side, The client must be logged in
+     * Note: If this element is returned to client side, the client must be logged in
      * to bing.com in order to generate the image successfully. The user's cookie is
      * required for the polling requests of the generation process.
      * @param prompt {string} - The prompt for the image generation. It should be given by 'Sydney'.
@@ -449,5 +469,34 @@ export default class BingImageCreator {
     async genImageIframeCsr(prompt, messageId) {
         const { contentUrl } = await this.genImagePage(prompt, messageId);
         return this.createImageIframe(contentUrl);
+    }
+
+    /**
+     * The pattern to match the inline image generation request.
+     */
+    static get inlineImagePattern() {
+        return /!\[(.*?)\]\(#generative_image\)/g;
+    }
+
+    /**
+     * Why is there such a function here? I have seen the messages with inline generative image style at a converation with bing, but only once.
+     * The message contains a markdown tag like '![prompt](#generative_image)', and can appear at the middle or end of the message.
+     * After starting a new conversation, I couldn't reproduce it anymore. Of course I tried various methods, but none of them works.
+     * Maybe it's a new function still in testing.
+     * Parse the message object or text, return the prompt for generative image if it exists.
+     * @param {string|object} message - The message to parese.
+     * @returns {string} The prompt for inline image generation request found in message, or undefined if it is not found.
+     */
+    static parseInlineGenerativeImage(message) {
+        if (typeof message !== 'string') {
+            message = message.text;
+        }
+
+        const match = BingImageCreator.inlineImagePattern.exec(message);
+        if (match) {
+            return match[1];
+        }
+
+        return undefined;
     }
 }
