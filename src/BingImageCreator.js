@@ -186,35 +186,37 @@ export default class BingImageCreator {
 
         // Count the nested tags, the initial value is 0.
         let nested = 0;
-        let s = end - 1;
-        let e = end - 1;
+        let i = end;
+        let s = i - 1;
+        let e = s;
         const tagStart = `<${tag} `;
         const tagEnd = `</${tag}>`;
 
         // loop the string, until find out its matched '</tag>'.
-        for (let i = end; i < html.length && e > 0; ++i) {
-            if (s > 0 && s < i) {
-                s = html.indexOf(tagStart, i);
-            }
+        while (e > 0) {
             if (e < i) {
                 e = html.indexOf(tagEnd, i);
             }
-            if (s > 0) {
-                if (e > 0) {
-                    i = Math.min(s, e);
-                    nested += (i === s) ? 1 : -1;
+            if (e > 0) {
+                if (s > 0 && s < i) {
+                    s = html.indexOf(tagStart, i);
                 }
-            } else if (e > 0) {
-                i = e;
-                nested -= 1;
-            }
-
-            // If nested is -1, the matched '</tag>' is found.
-            if (nested === -1) {
-                // Update the end position, make it point to the position after </tag>.
-                end = i + tagEnd.length;
-                // Break the loop;
-                break;
+                if (s > 0) {
+                    i = Math.min(s, e);
+                    nested += (i === s)
+                        ? (i += tagStart.length, 1)
+                        : (i += tagEnd.length, -1);
+                } else {
+                    i = e + tagEnd.length;
+                    nested -= 1;
+                }
+                // If nested is -1, the matched '</tag>' is found.
+                if (nested === -1) {
+                    // Update the end position, make it point to the position after </tag>.
+                    end = i;
+                    // Break the loop;
+                    break;
+                }
             }
         }
 
