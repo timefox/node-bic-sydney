@@ -19,11 +19,11 @@ npm i @timefox/bic-sydney
 
 ### Usage
 <details>
-<summary><strong>Example 1</strong></summary>
+<summary><strong>Example 1. Create a client side render iframe</strong></summary>
 
-Create images by Bing Image Creator, and get a iframe pointing to the page contains the images created.
+Create images by Bing Image Creator, and get an iframe pointing to the page contains the images created.
 This method is most likely what the original bing browser client does.
-The format of {BingImageCreator} options is almost same as the bingAiClient options of 'ChatGPT API'.
+The format of {BingImageCreator} options is almost same as the bingAiClient options of '@waylaidwanderer/chatgpt-api'.
 ```JS
 import { BingImageCreator } from '@timefox/bic-sydney';
 import crypto from 'crypto';
@@ -61,9 +61,9 @@ imageIframe.then((result) => {
 </details>
 
 <details>
-<summary><strong>Example 2</strong></summary>
+<summary><strong>Example 2. Create a server side render iframe</strong></summary>
 
-Create images by Bing Image Creator, and get a iframe which uses the 'srcdoc' attribute to hold the rendered result page.
+Create images by Bing Image Creator, and get an iframe which uses the 'srcdoc' attribute to hold the rendered result page.
 **This method does not require the user to have logged in to bing.com on the client side.  The entire request process is completed by the server proxy.**
 **It's very useful for the clients can not visit the new bing's service directly.**
 ```JS
