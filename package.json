@@ -4,7 +4,7 @@
   "description": "This is a module which allows sydney to use the Bing Image Creator to generate images for you.",
   "main": "index.js",
   "type": "module",
-  "types": "BingImageCreator.d.ts",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "test": "npx eslint .",
     "types": "npx tsc -p .",
@@ -12,14 +12,18 @@
   },
   "files": [
     "index.js",
-    "*.d.ts",
     "LICENSE",
     "README.md",
+    "dist",
     "src"
   ],
   "publishConfig": {
     "access": "public"
   },
+  "pre-commit": [
+    "test",
+    "types"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/timefox/node-bic-sydney.git"
@@ -44,6 +48,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
     "jsdoc": "^4.0.2",
+    "pre-commit": "^1.2.2",
     "typescript": "^5.1.3"
   }
 }
