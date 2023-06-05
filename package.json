@@ -4,12 +4,15 @@
   "description": "This is a module which allows sydney to use the Bing Image Creator to generate images for you.",
   "main": "index.js",
   "type": "module",
+  "types": "BingImageCreator.d.ts",
   "scripts": {
     "test": "npx eslint .",
+    "types": "npx tsc -p .",
     "doc": "jsdoc ./src/BingImageCreator.js -d docs"
   },
   "files": [
     "index.js",
+    "*.d.ts",
     "LICENSE",
     "README.md",
     "src"
@@ -23,8 +26,9 @@
   },
   "keywords": [
     "bing",
-    "bing-image-creator",
-    "bing-chat",
+    "image",
+    "creator",
+    "chat",
     "bic",
     "sydney"
   ],
@@ -35,9 +39,11 @@
     "undici": "^5.22.1"
   },
   "devDependencies": {
+    "@types/node": "^20.2.5",
     "eslint": "^8.40.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "jsdoc": "^4.0.2"
+    "jsdoc": "^4.0.2",
+    "typescript": "^5.1.3"
   }
 }
