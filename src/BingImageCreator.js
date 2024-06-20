@@ -2,8 +2,7 @@
  * A module that provides some 'Bing Image Creator' functions.
  * @module BingImageCreator
  */
-import { ProxyAgent } from 'undici';
-import { fetch as fetchUndici } from 'fetch-undici';
+import { fetch as fetchUndici, ProxyAgent } from 'fetch-undici';
 
 let fetch;
 

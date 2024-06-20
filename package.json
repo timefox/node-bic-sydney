@@ -1,6 +1,6 @@
 {
   "name": "@timefox/bic-sydney",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "This is a module which allows sydney to use the Bing Image Creator to generate images for you.",
   "main": "index.js",
   "type": "module",
