@@ -39,7 +39,7 @@
   "author": "timefox",
   "license": "MIT",
   "dependencies": {
-    "fetch-undici": "^3.0.1",
+    "fetch-undici": "^4.0.0",
     "undici": "^5.22.1"
   },
   "devDependencies": {
