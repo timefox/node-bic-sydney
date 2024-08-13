@@ -388,13 +388,19 @@ export default class BingImageCreator {
         }
 
         const regex = /<img class="mimg" .*? src="([^"]*?)"/g;
-        return Array.from(
+        const imgList = Array.from(
             resultHtml.matchAll(regex),
-            match => (() => {
+            (match) => {
                 const l = this.constructor.decodeHtmlLite(match[1]);
                 return removeSizeLimit ? l.split('?w=')[0] : l;
-            })(),
+            },
         );
+
+        if (imgList.length === 0) {
+            const errRegex = /<div class="gil_err_mt">(.*?)<\/div>/;
+            const err = errRegex.exec(resultHtml)?.[1];
+            throw new Error(`Bing Image Creator Error: ${err}`);
+        }
     }
 
     /**
