@@ -349,6 +349,7 @@ export default class BingImageCreator {
                         const data = await response.json();
                         throw new Error(`Bing Image Creator Error: ${data.errorMessage}`);
                     }
+                    throw new Error('Bing Image Creator Error: Unknown response format');
                 }
             } else {
                 const cancelRequest = onProgress({ pollingStartTime, pollCount });
