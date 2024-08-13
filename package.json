@@ -7,8 +7,10 @@
   "types": "dist/types/index.d.ts",
   "scripts": {
     "test": "npx eslint .",
+    "fix": "npx eslint . --fix",
     "types": "npx tsc -p .",
-    "doc": "jsdoc ./src/BingImageCreator.js -d docs"
+    "doc": "jsdoc ./src/BingImageCreator.js -d docs",
+    "pack": "npm pack"
   },
   "files": [
     "index.js",

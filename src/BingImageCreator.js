@@ -2,7 +2,7 @@
  * A module that provides some 'Bing Image Creator' functions.
  * @module BingImageCreator
  */
-import { fetch as fetchUndici, ProxyAgent } from 'fetch-undici';
+import { fetch as fetchUndici, ProxyAgent } from 'undici';
 
 let fetch;
 
@@ -319,8 +319,10 @@ export default class BingImageCreator {
         }
 
         const pollingStartTime = new Date().getTime();
+        let pollCount = 0;
+        const maxPollCount = this.options.maxPollCount || -1;
 
-        while (polling) {
+        while (polling && (maxPollCount < 0 || pollCount < maxPollCount)) {
             if (this.debug) {
                 console.debug(`polling the image request: ${pollingUrl}`);
             }
@@ -335,11 +337,21 @@ export default class BingImageCreator {
 
             // eslint-disable-next-line no-await-in-loop
             body = await response.text();
+            pollCount += 1;
 
-            if (body && body.indexOf('errorMessage') === -1) {
-                polling = false;
+            if (body) {
+                if (body.indexOf('errorMessage') === -1) {
+                    polling = false;
+                } else {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        // eslint-disable-next-line no-await-in-loop
+                        const data = await response.json();
+                        throw new Error(`Bing Image Creator Error: ${data.errorMessage}`);
+                    }
+                }
             } else {
-                const cancelRequest = onProgress({ pollingStartTime });
+                const cancelRequest = onProgress({ pollingStartTime, pollCount });
                 if (cancelRequest) {
                     throw new Error('Bing Image Creator Error: cancelled');
                 }
@@ -347,6 +359,10 @@ export default class BingImageCreator {
                 // eslint-disable-next-line no-await-in-loop
                 await this.constructor.sleep(1000);
             }
+        }
+
+        if (polling) {
+            throw new Error('Bing Image Creator Error: timeout/max polling count reached');
         }
 
         return body;
@@ -370,11 +386,11 @@ export default class BingImageCreator {
             console.debug();
         }
 
-        const regex = /(?<=src=")[^"]+(?=")/g;
+        const regex = /<img class="mimg" .*? src="([^"]*?)"/g;
         return Array.from(
             resultHtml.matchAll(regex),
             match => (() => {
-                const l = this.constructor.decodeHtmlLite(match[0]);
+                const l = this.constructor.decodeHtmlLite(match[1]);
                 return removeSizeLimit ? l.split('?w=')[0] : l;
             })(),
         );
