@@ -49,6 +49,7 @@ export default class BingImageCreator {
                     instSuffix: 0,
                     instSuffixIncrement: 1,
                 },
+                maxPollCount: options.maxPollCount || -1,
             };
         }
         fetch = typeof options.fetch === 'function' ? options.fetch : fetchUndici;
@@ -320,9 +321,8 @@ export default class BingImageCreator {
 
         const pollingStartTime = new Date().getTime();
         let pollCount = 0;
-        const maxPollCount = this.options.maxPollCount || -1;
 
-        while (polling && (maxPollCount < 0 || pollCount < maxPollCount)) {
+        while (polling && (this.options.maxPollCount < 0 || pollCount < this.options.maxPollCount)) {
             if (this.debug) {
                 console.debug(`polling the image request: ${pollingUrl}`);
             }
@@ -401,6 +401,8 @@ export default class BingImageCreator {
             const err = errRegex.exec(resultHtml)?.[1];
             throw new Error(`Bing Image Creator Error: ${err}`);
         }
+
+        return imgList;
     }
 
     /**
@@ -493,34 +495,5 @@ export default class BingImageCreator {
     async genImageIframeCsr(prompt, messageId) {
         const { contentUrl } = await this.genImagePage(prompt, messageId);
         return this.createImageIframe(contentUrl);
-    }
-
-    /**
-     * The pattern to match the inline image generation request.
-     */
-    static get inlineImagePattern() {
-        return /!\[(.*?)\]\(#generative_image\)/g;
-    }
-
-    /**
-     * Why is there such a function here? I have seen the messages with inline generative image style at a converation with bing, but only once.
-     * The message contains a markdown tag like '![prompt](#generative_image)', and can appear at the middle or end of the message.
-     * After starting a new conversation, I couldn't reproduce it anymore. Of course I tried various methods, but none of them works.
-     * Maybe it's a new function still in testing.
-     * Parse the message object or text, return the prompt for generative image if it exists.
-     * @param {string|object} message - The message to parese.
-     * @returns {string} The prompt for inline image generation request found in message, or undefined if it is not found.
-     */
-    static parseInlineGenerativeImage(message) {
-        if (typeof message !== 'string') {
-            message = message.text;
-        }
-
-        const match = BingImageCreator.inlineImagePattern.exec(message);
-        if (match) {
-            return match[1];
-        }
-
-        return undefined;
     }
 }
